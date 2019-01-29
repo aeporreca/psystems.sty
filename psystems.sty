@@ -1,0 +1,156 @@
+%% psystems.sty
+%% Copyright 2014, 2016, 2017 Antonio E. Porreca <antonio.porreca@lis-lab.fr>
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is
+% Antonio E. Porreca <porreca@disco.unimib.it>
+%
+% This work consists of the file psystems.sty.
+
+% LaTeX macros for P systems
+
+% If you explicitly use the package `complexity', use the command
+% \usepackage[options]{complexity} before \usepackage{psystems}. This
+% way, the options you provide to the `complexity' package, such as
+% `small' or `bold', will also be used when typesetting complexity
+% classes for P systems.
+
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{psystems}
+  [2017/09/07 v1.1 LaTeX macros for P systems]
+
+% Configurations of P systems
+\newcommand{\conf}[1]{\mathcal{#1}}
+\newcommand{\confC}{\conf{C}}
+\newcommand{\confD}{\conf{D}}
+
+% Computations of P systems
+\RequirePackage{amsmath}
+\newcommand{\comp}[1]{\vec{\conf{#1}}}
+\newcommand{\compC}{\comp{C}}
+
+% Families of P systems
+\newcommand{\familyPi}{\boldsymbol{\Pi}}
+
+% Classes of P systems (active membranes, etc.)
+\newcommand{\pclass}[1]{\mathcal{#1}}
+\newcommand{\pD}{\pclass{D}}
+\RequirePackage{xifthen}
+\newcommand{\pAM}[1][]{%
+  \pclass{AM}\ifthenelse{\isempty{#1}}{}{\mathrm{(#1)}}}
+\newcommand{\pAMz}[1][]{%
+  \pclass{AM}^0\ifthenelse{\isempty{#1}}{}{\mathrm{(#1)}}}
+\newcommand{\pEAM}{{\pAM[-ne]}}
+\newcommand{\pREAM}{{\pAM[-d,-ne]}}
+
+% Multisets with spaced elements
+% usage: \multiset{comma-separated-elements}
+\RequirePackage{etoolbox}
+\newcommand{\multiset}[1]{%
+  \def\nextitem{\def\nextitem{\;}}
+  \renewcommand*{\do}[1]{\nextitem##1}
+  \docsvlist{#1}
+}
+
+% Membranes in bracket notation
+% usage: \membrane[size]{label}{charge}{contents}
+\RequirePackage{xifthen}
+\newcommand{\membrane}[4][]{%
+  #1[\ifthenelse{\isempty{#4}}{\;}{\multiset{#4}}#1]_{#2}^{#3}}
+\newcommand{\membranez}[3][]{\membrane[#1]{#2}{}{#3}}
+% Experimental code using TikZ: uncomment at your own risk
+% \RequirePackage{tikz}
+% \RequirePackage{calc}
+% \tikzset{membrane/.style={
+%   text height=\heightof{b},
+%   inner sep=3pt,
+%   outer sep=3pt,
+%   rounded corners=3pt,
+%   draw,
+%   align=center,
+%   anchor=base}}
+% \newcommand{\tikzmembrane}[1]{\tikz[baseline]{\node[membrane] {$#1$};}}
+% \renewcommand{\membrane}[4][]{%
+%   \tikzmembrane{\ifthenelse{\isempty{#4}}{\phantom{a}}{#4}}_{#2}^{#3}}
+
+% Rules for P systems with active membranes
+\newcommand{\pevolve}[4]{\membrane{#1}{#2}{#3 \to \multiset{#4}}}
+\newcommand{\psendin}[5]{%
+  \multiset{#3} \; \membrane{#1}{#2}{} \to \membrane{#1}{#4}{#5}}
+\newcommand{\psendout}[5]{%
+  \membrane{#1}{#2}{#3} \to \membrane{#1}{#4}{} \; \multiset{#5}}
+\newcommand{\pdissolve}[4]{\membrane{#1}{#2}{#3} \to \multiset{#4}}
+\newcommand{\pdivide}[7]{%
+  \membrane{#1}{#2}{#3} \to \membrane{#1}{#4}{#5} \; \membrane{#1}{#6}{#7}}
+\newcommand{\pnonelemdivide}[7]{%
+  \membrane[\big]{#1}{#2}{\multiset{#3}} \to
+  \membrane[\big]{#1}{#4}{\multiset{#5}} \;
+  \membrane[\big]{#1}{#6}{\multiset{#7}}}
+
+% Rules for P systems with active membranes without charges
+\newcommand{\pevolvez}[3]{\membrane{#1}{}{#2 \to \multiset{#3}}}
+\newcommand{\psendinz}[3]{%
+  \multiset{#2} \; \membrane{#1}{}{} \to \membrane{#1}{}{#3}}
+\newcommand{\psendoutz}[3]{%
+  \membrane{#1}{}{#2} \to \membrane{#1}{}{} \; \multiset{#3}}
+\newcommand{\pdissolvez}[3]{\membrane{#1}{}{#2} \to \multiset{#3}}
+\newcommand{\pdividez}[4]{%
+  \membrane{#1}{}{#2} \to \membrane{#1}{}{#3} \; \membrane{#1}{}{#4}}
+\newcommand{\pnonelemdividez}[4]{%
+  \membrane[\big]{#1}{}{\multiset{#2}} \to
+  \membrane[\big]{#1}{}{\multiset{#3}} \;
+  \membrane[\big]{#1}{}{\multiset{#4}}}
+
+% Rules for P systems without charges, with promoters
+\newcommand{\pevolvezp}[4]{
+  \membrane{#1}{}{#2 \xrightarrow{\multiset{#3}} \multiset{#4}}}
+
+% Time complexity classes for P systems
+\RequirePackage{complexity}
+\newclass{\MC}{MC}
+\newclass{\NMC}{NMC}
+\newclass{\PMC}{PMC}
+\newclass{\NPMC}{NPMC}
+
+% Space complexity classes for P systems
+\RequirePackage{complexity}
+\newclass{\MCSPACE}{MCSPACE}
+\newclass{\NMCSPACE}{NMCSPACE}
+\newclass{\PMCSPACE}{PMCSPACE}
+\newclass{\NPMCSPACE}{NPMCSPACE}
+\newclass{\EXPMCSPACE}{EXPMCSPACE}
+
+% Graphical representation of membranes
+
+\RequirePackage{tikz}
+\RequirePackage{calc}
+
+\tikzset{membrane/.style={
+  inner sep=4pt,
+  rounded corners=4pt,
+  draw,
+  semithick,
+  anchor=base,
+  fill=white}}
+
+\newcommand{\tikzmembrane}[2][]{%
+  \tikz[baseline=0pt]{\node[membrane,#1] {$#2$};}}
+
+\newcommand{\xmembrane}[4][]{%
+  \setlength{\arraycolsep}{\widthof{\;}}
+  \tikzmembrane[#1]{\ifthenelse{\isempty{#4}}
+                               {\phantom{e}}
+                               {\begin{matrix}
+                                 #4
+                                \end{matrix}}}_{#2}^{#3}}
+
+\endinput
